@@ -10,36 +10,36 @@ pipeline {
 
         stage('Clone') {
             steps {
-                echo "🔁 Cloning repository..."
+                echo "Cloning repository..."
                 git branch: "${BRANCH}", url: "${GIT_REPO}"
             }
         }
 
         stage('Build') {
             steps {
-                echo '🔧 Simulating Build step...'
+                echo 'Build step simulated...'
             }
         }
 
         stage('Test') {
             steps {
-                echo '🧪 Simulating Test step...'
+                echo 'Test step simulated...'
             }
         }
 
         stage('Deploy') {
             steps {
-                echo '🚀 Simulating Deploy step...'
+                echo 'Deploy step simulated...'
             }
         }
     }
 
     post {
         success {
-            echo '✅ Pipeline completed successfully!'
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo '❌ Pipeline failed!'
+            echo 'Pipeline failed!'
         }
     }
 }
