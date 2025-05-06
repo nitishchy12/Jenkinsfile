@@ -1,8 +1,13 @@
 pipeline {
     agent any
 
-    stages {
+    environment {
+        GIT_REPO = 'https://github.com/nitishchy12/Jenkinsfile'
+        BRANCH = 'main'
+        IMAGE_NAME = 'nitishchy12/sql:8'
+    }
 
+    stages {
         stage('Clone') {
             steps {
                 echo "Cloning repository..."
@@ -10,19 +15,34 @@ pipeline {
             }
         }
 
-        stage('Build SQL Image') {
+        stage('Docker Login') {
             steps {
-                script {
-                    bat 'docker build -t sql:8 .'
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
+                    bat "echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin"
                 }
             }
         }
 
-        stage('Push SQL Image') {
+        stage('Build Docker Image') {
             steps {
                 script {
-                     bat 'docker run -d -p "8081:8081" sql:8'
-                    }
+                    bat "docker build -t %IMAGE_NAME% ."
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    bat "docker push %IMAGE_NAME%"
+                }
+            }
+        }
+
+        stage('Run Docker Container') {
+            steps {
+                script {
+                    bat "docker run -d -p 8081:8081 %IMAGE_NAME%"
                 }
             }
         }
@@ -36,9 +56,16 @@ pipeline {
         stage('Deploy') {
             steps {
                 echo 'Deploy step simulated...'
-                // Example: docker run command or docker-compose
             }
         }
     }
 
+    post {
+        failure {
+            echo 'Pipeline failed!'
+        }
+        success {
+            echo 'Pipeline succeeded!'
+        }
+    }
 }
